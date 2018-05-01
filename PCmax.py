@@ -9,6 +9,8 @@ from set_finder import set_finder
 from genRealisation import genetic2
 from genRealisation import genetic3
 from genRealisation import genetic4
+from binpacking import binpacking
+
 
 def alg_chooser (alg, task=[], proc=0):
     
@@ -17,8 +19,10 @@ def alg_chooser (alg, task=[], proc=0):
                 2: genetic,
                 3: genetic2,
                 4: genetic3,
-                5: genetic4
+                5: genetic4,
+                6: binpacking
                 }
+    
     if (proc!=0):
          return switcher.get(alg,"error: I don't know this algorithm, sorry")(task,proc)
     else:
@@ -114,20 +118,39 @@ def main (*args, **kwargs):
         
     else: optymal_present = False
     list_of_instances = input("""Now lets start, provide me with paths of the instances (separated by blanck spaces only) """).split()
-    alg = 0
-    while(alg_chooser(alg)): alg = int(input("""I, think it's time for you to choose an algorithm you want me to use to solve this problem.\n Type in one of numbers from the list bellow:\n1:\tGreedy\n2:\tGenetic\n3:\tGenetic2\n4:\tGenetic3\n5:\tGenetic4\n"""))
-    results = open('results.txt', 'a')
+    if(input("""Do you wish to use all algorithms implemented? (y/n) """)=='y'):
+        use_all = True
+        algs = [1,2,3,4,5,6]
+    else: use_all = False
+    if not(use_all):
+        alg = 0
+        while(alg_chooser(alg)): alg = int(input("""I, think it's time then for you to choose an algorithm you want me to use to solve this problem.\n Type in one of numbers from the list bellow:\n1:\tGreedy\n2:\tGenetic\n3:\tGenetic2\n4:\tGenetic3\n5:\tGenetic4\n6:\tbinpacking\n"""))
+        algs = [alg]
+    if(input("""do you wish to save results? (y/n) """)=='y'):
+        to_file = True
+        
+    else: to_file = False    
     for i in list_of_instances:
         f=open(i,'r')
-        
         num_of_proc, num_of_tasks, list_of_tasks = read_instance(f)
-        results.write("{}\t{}\t{}".format(alg, i, alg_chooser(alg, list_of_tasks, num_of_proc)))
-        if optymal_present :
-            results.write("\t{}\n".format(f.readline().split()[-1]))
+        if to_file:
+            results = open('results.txt', 'a')
+            for alg in algs:
+                results.write("{}\t{}\t{}".format(alg, i, alg_chooser(alg, list_of_tasks, num_of_proc)))
+                if optymal_present :
+                    results.write("\t{}\n".format(f.readline().split()[-1]))
+                else:
+                    results.write("\n")
+            f.close()
+            results.close()
         else:
-            results.write("\n")
-        f.close()
-    results.close()
+            for alg in algs:
+                print("{}\t{}\t{}".format(alg, i, alg_chooser(alg, list_of_tasks, num_of_proc)))
+                if optymal_present :
+                    print("\t{}\n".format(f.readline().split()[-1]))
+                else:
+                    print("\n")
+            f.close()
     return 0
 
 if __name__ == "__main__":
